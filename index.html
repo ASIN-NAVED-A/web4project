@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Form</title>
+  <style>
+    body {font-family: Arial, sans-serif; background: #f7f7f7; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
+    .form-container {background: #fff; padding: 25px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+    .form-container h2 {text-align: center; margin-bottom: 20px;}
+    .form-group {margin-bottom: 15px;}
+    label {font-weight: bold; display: block; margin-bottom: 5px;}
+    input[type="text"], input[type="email"], input[type="password"], input[type="date"] {width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;}
+    .checkbox-group {display: flex; align-items: center; margin-top: 10px;}
+    .checkbox-group input {margin-right: 8px;}
+    .error {color: red; font-size: 0.85em; margin-top: 3px;}
+    .password-strength {font-size: 0.9em; margin-top: 5px; font-weight: bold;}
+    .btn {width: 100%; padding: 10px; border: none; background: #007BFF; color: #fff; font-size: 1em; border-radius: 6px; cursor: pointer;}
+    .btn:hover {background: #0056b3;}
+    .success-message {color: green; text-align: center; margin-top: 15px; font-weight: bold;}
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Registration Form</h2>
+    <form id="registrationForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="fullName">
+        <div class="error" id="fullNameError"></div>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username">
+        <div class="error" id="usernameError"></div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email">
+        <div class="error" id="emailError"></div>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="text" id="phone">
+        <div class="error" id="phoneError"></div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password">
+        <div class="password-strength" id="passwordStrength"></div>
+        <div class="error" id="passwordError"></div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword">
+        <div class="error" id="confirmPasswordError"></div>
+      </div>
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" id="dob">
+        <div class="error" id="dobError"></div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="terms">
+        <label for="terms">I accept the Terms & Conditions</label>
+      </div>
+      <div class="error" id="termsError"></div>
+
+      <button type="submit" class="btn">Register</button>
+    </form>
+    <div class="success-message" id="successMessage"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("registrationForm");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      let allGood = true;
+
+      document.querySelectorAll(".error").forEach(el => el.textContent = "");
+      document.getElementById("successMessage").textContent = "";
+
+      const name = document.getElementById("fullName").value.trim();
+      if (!/^[A-Za-z ]+$/.test(name)) {
+        document.getElementById("fullNameError").textContent = "Please enter your name using letters only.";
+        allGood = false;
+      }
+
+      const username = document.getElementById("username").value.trim();
+      if (username.length < 5 || !/^[A-Za-z0-9]+$/.test(username)) {
+        document.getElementById("usernameError").textContent = "Username must be at least 5 letters/numbers.";
+        allGood = false;
+      }
+
+      const email = document.getElementById("email").value.trim();
+      if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+        document.getElementById("emailError").textContent = "That doesn’t look like a valid email.";
+        allGood = false;
+      }
+
+      const phone = document.getElementById("phone").value.trim();
+      if (!/^[0-9]{10}$/.test(phone)) {
+        document.getElementById("phoneError").textContent = "Phone number must be exactly 10 digits.";
+        allGood = false;
+      }
+
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      const hasLowercase = /[a-z]/.test(password);
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecial = /[@$!%*?&]/.test(password);
+      const longEnough = password.length >= 8;
+
+      if (!(hasLowercase && hasUppercase && hasNumber && hasSpecial && longEnough)) {
+        document.getElementById("passwordError").textContent = 
+          "Password must have: 8+ chars, uppercase, lowercase, number, special symbol.";
+        allGood = false;
+      }
+
+      if (password !== confirmPassword) {
+        document.getElementById("confirmPasswordError").textContent = "Passwords don’t match.";
+        allGood = false;
+      }
+
+      const dobValue = document.getElementById("dob").value;
+      const dob = new Date(dobValue);
+      if (!dobValue) {
+        document.getElementById("dobError").textContent = "Please select your date of birth.";
+        allGood = false;
+      } else {
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+          age--;
+        }
+        if (age < 18) {
+          document.getElementById("dobError").textContent = "You must be at least 18 years old.";
+          allGood = false;
+        }
+      }
+
+      if (!document.getElementById("terms").checked) {
+        document.getElementById("termsError").textContent = "Please accept the terms to continue.";
+        allGood = false;
+      }
+
+      if (allGood) {
+        document.getElementById("successMessage").textContent = "🎉 Registration Successful!";
+        form.reset();
+        document.getElementById("passwordStrength").textContent = "";
+      }
+    });
+
+    document.getElementById("password").addEventListener("input", function() {
+      const indicator = document.getElementById("passwordStrength");
+      const pwd = this.value;
+      let message = "";
+
+      if (pwd.length < 8) {
+        message = "Strength: Weak";
+        indicator.style.color = "red";
+      } else if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd) && /\d/.test(pwd)) {
+        message = "Strength: Medium";
+        indicator.style.color = "orange";
+      }
+      if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd) && /\d/.test(pwd) && /[@$!%*?&]/.test(pwd)) {
+        message = "Strength: Strong";
+        indicator.style.color = "green";
+      }
+      indicator.textContent = message;
+    });
+  </script>
+</body>
+</html>
+
